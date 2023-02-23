@@ -1,0 +1,38 @@
+﻿@page "/cuentas"
+@using System.Globalization;
+@inject ICuentaBancariaService service
+
+<h3>Cuentas bancarias</h3>
+
+@if (CuentasBancarias == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Cuenta</th>
+                <th>Saldo</th>                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cuenta in CuentasBancarias)
+            {
+                <tr>
+                    <td>@cuenta.NumeroCuenta</td>
+                    <td>@cuenta.Saldo.ToString("C", CultureInfo.CreateSpecificCulture("es-CO"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    @code {
+    private List<CuentaBancaria> CuentasBancarias { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        CuentasBancarias = await service.CuentasBancarias();
+    }
+}

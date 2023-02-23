@@ -1,0 +1,57 @@
+﻿@page "/cuenta/crear"
+@inject ICuentaBancariaService service
+<PageTitle>Crear cuenta</PageTitle>
+<h3>Crear Cuenta</h3>
+
+
+
+<div class="row">
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Número de Cuenta</label>
+        <input type="number" class="form-control" @bind-value="@Cuenta.NumeroCuenta" id="exampleFormControlInput1" placeholder="name@example.com">
+    </div>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Saldo</label>
+        <input type="number" class="form-control" @bind-value="@Cuenta.Saldo" id="exampleFormControlInput1" placeholder="name@example.com">
+    </div>
+</div>
+<button class="btn btn-primary" @onclick="CrearCuenta">Crear</button>
+
+
+    @if (MostrarResultado)
+    {
+        @if (Resultado)
+        {
+            <div class="alert alert-success" role="alert">
+                Cuenta creada con exito.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+              La cuenta ya existe, digite otro número de cuenta.
+            </div>
+        }
+    }
+    
+
+
+@code {
+    public CuentaBancaria Cuenta { get; set; } = new();
+    public bool MostrarResultado { get; set; } = false;
+    public bool Resultado { get; set; } = false;
+
+    private async void CrearCuenta()
+    {
+        if (Cuenta != null)
+        {
+            Resultado = await service.Crear(Cuenta);
+            MostrarResultado = true;
+
+
+            Cuenta.NumeroCuenta = 0;
+            Cuenta.Saldo = 0;
+        }        
+    }
+
+}

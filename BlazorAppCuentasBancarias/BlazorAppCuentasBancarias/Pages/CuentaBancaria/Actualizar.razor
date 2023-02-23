@@ -1,0 +1,96 @@
+﻿@page "/cuenta/actualizar"
+@using System.Globalization;
+@inject ICuentaBancariaService service
+<PageTitle>Retiros y consignaciones</PageTitle>
+<h3>Retiros y consignaciones</h3>
+
+<div class="form-check">
+    <input class="form-check-input" type="radio" @bind-value="Consignacion" name="flexRadioDefault" id="flexRadioDefault1" checked>
+  <label class="form-check-label" for="flexRadioDefault1">
+    Consignar
+  </label>
+</div>
+<div class="form-check">
+   <input class="form-check-input" type="radio" @bind-value="Consignacion" name="flexRadioDefault" id="flexRadioDefault2" >
+  <label class="form-check-label" for="flexRadioDefault2">
+    Retirar
+  </label>
+</div>
+
+<div class="row">
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Número de Cuenta</label>
+        <input type="number" class="form-control" @bind-value="@Cuenta.NumeroCuenta" id="exampleFormControlInput1" placeholder="name@example.com">
+    </div>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Saldo</label>
+        <input type="number" class="form-control" @bind-value="@Cuenta.Saldo" id="exampleFormControlInput1" placeholder="name@example.com">
+    </div>
+</div>
+<button class="btn btn-primary" @onclick="CrearCuenta">Crear</button>
+
+
+@if (MostrarResultado)
+{
+    @if (Resultado)
+    {
+        <div class="alert alert-success" role="alert">
+            Cuenta creada con exito.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            La cuenta ya existe, digite otro número de cuenta.
+        </div>
+    }
+}
+
+@if (NewSaldo != null)
+{
+    <div class="row">
+    <div class="mb-3">
+        <h5>Nuevo saldo</h5>
+        </div>
+    <div class="mb-3">
+        <label class="form-label">Cuenta : @NewSaldo.NumeroCuenta</label>
+        <label class="form-label">Saldo : @NewSaldo.Saldo.ToString("C", CultureInfo.CreateSpecificCulture("es-CO"))</label>
+    </div>
+</div>
+
+}
+
+@code {
+    public CuentaBancaria Cuenta { get; set; } = new();
+    public bool MostrarResultado { get; set; } = false;
+    public bool Resultado { get; set; } = false;
+    public bool Consignacion { get; set; } = true;
+
+    public CuentaBancaria NewSaldo { get; set; } = new();
+
+    private async void CrearCuenta()
+    {
+        if (Cuenta != null)
+        {
+            if (Consignacion)
+            {
+                Resultado = await service.Consignar(Cuenta.NumeroCuenta, Cuenta.Saldo);
+            }
+            else
+            {
+                Resultado = await service.Retirar(Cuenta.NumeroCuenta, Cuenta.Saldo);
+            }
+            
+            MostrarResultado = true;
+
+            if (Resultado)
+            {
+                NewSaldo = await service.ConsultarCuenta(Cuenta.NumeroCuenta);
+            }
+
+            Cuenta.NumeroCuenta = 0;
+            Cuenta.Saldo = 0;
+        }
+    }
+
+}
